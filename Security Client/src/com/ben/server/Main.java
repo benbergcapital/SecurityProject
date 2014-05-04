@@ -74,12 +74,20 @@ public class Main {
 		
 				System.out.println("Connecting to"+_listOfClients.get(Integer.valueOf(line)).toString()); 
 				ClientThread ct = _listOfClients.get(Integer.valueOf(line));
+				
+				while(line != "quit")
+				{
 				System.out.println("Type command to send");
 				line = in.readLine();
+						if (line.equals("quit"))
+						{
+						break;
+						}
 				ct.sOutput.writeObject(new Message(Message.COMMAND,line));
 				System.out.println("Sent Command");
-		}
 		
+				}
+			}
 			
 		catch(Exception e)
 		{
@@ -88,7 +96,7 @@ public class Main {
 		}
 		else
 		{
-			logger.info("Type help to connect");
+			System.out.println("Type help to connect");
 		}
 		
 		

