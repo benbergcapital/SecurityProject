@@ -223,7 +223,7 @@ class ClientThread extends Thread {
 					}
 					else
 					{
-					sOutput.writeObject(new Message(Message.ACK,"testjessage"));
+					sOutput.writeObject(new Message(Message.ACK,"All is ok"));
 					logger.info("Received Login Message");
 					}
 					break;
