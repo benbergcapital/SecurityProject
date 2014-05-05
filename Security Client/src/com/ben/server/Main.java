@@ -104,16 +104,18 @@ public class Main {
 }
 class ListenThread extends Thread {
 	String directory="";
-	boolean stollen = true;
+	boolean stollen = false;
 	static ArrayList<ClientThread> _listOfClients;
 	static final Logger logger = Logger.getLogger(ListenThread.class);
+	int port=5124;
 ListenThread(String[] args, ArrayList<ClientThread> _listOfClients) throws IOException
 {
 		this._listOfClients = _listOfClients;
-	if (args.length>1)	
+	if (args.length>2)	
 	{
-		directory = args[0];
-		if (args[1].equals("stollen"))
+		port = Integer.valueOf(args[0]);
+		directory = args[1];
+		if (args[2].equals("stollen"))
 			{
 			stollen =true;
 			}
@@ -133,7 +135,7 @@ ListenThread(String[] args, ArrayList<ClientThread> _listOfClients) throws IOExc
 public void run() 
 {
 try{
-		ServerSocket serverSocket = new ServerSocket(5124);
+		ServerSocket serverSocket = new ServerSocket(port);
 
 		// infinite loop to wait for connections
 		logger.info("Server waiting for Clients on port " + 5124 + ".");
@@ -145,9 +147,8 @@ try{
 			ClientThread t = new ClientThread(socket,stollen,directory);  // make a thread of it
 			t.start();
 			_listOfClients.add(t);
-			SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMDD HHmmss");
-			Calendar cal = Calendar.getInstance();
-		    logger.info(sdf.format(cal.getTime())+" Connection Received from  " + socket .getInetAddress() + " on port "
+		
+		    logger.info(" Connection Received from  " + socket .getInetAddress() + " on port "
 		             + socket .getPort() + " to port " + socket .getLocalPort() + " of "
 		             + socket .getLocalAddress());
 				
@@ -208,6 +209,11 @@ class ClientThread extends Thread {
 
 				case Message.ACK:
 					logger.info("Received Ack from "+socket.getInetAddress() +" with message : "+ input.getMessage());
+					if (!Stollen)
+					{
+					sOutput.writeObject(new Message(Message.LOGOUT,"Ok, fine to shut down"));
+					logger.info("Sent Logout message to "+socket.getInetAddress());
+					}
 					break;
 				case Message.LOGIN:
 					if (Stollen)
@@ -222,7 +228,7 @@ class ClientThread extends Thread {
 					}
 					break;
 				case Message.IMAGE:
-					logger.info("Received Image from" +socket.getInetAddress());
+					logger.info("Received Image from " +socket.getInetAddress());
 					// ImageIO.write(input., "JPG", new File("c:\\test\\test.jpg"));
 					SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMDD HHmmss");
 					Calendar cal = Calendar.getInstance();

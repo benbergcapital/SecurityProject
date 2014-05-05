@@ -14,32 +14,35 @@ public class ConnectionManager {
 		boolean connection=false;
 		WorkerClass w = new WorkerClass();
     	
-		while(!connection)
+		while(true)
 		{
-		try {
-			w.Start();
-		    URL url = new URL("http://www.google.com");
-		    URLConnection conn = url.openConnection();
-
-		    if(conn.getContentLength() == -1){
-		       //no internet connection
-		    	connection = false;
-		    	Thread.sleep(600000);
-		    }
-		    else
-		    {
-		    	//internet
-		    	connection = true;
-		//    	WorkerClass w = new WorkerClass();
-		//    	w.Start();
-		    }
-		  } 
-		  catch (Exception e) {
-		   
-		      e.printStackTrace();
-		  }
+			try {
+		
+			    URL url = new URL("http://www.google.com");
+			    URLConnection conn = url.openConnection();
+			    	conn.connect();
+			  //internet connection is alive
+			      	w.Start();
+			     
+			  } 
+			  catch (Exception e) {
+			   // no internet connection. 
+			  }
+		
+		//waiting and trying again, no internet connection found.
+			try
+				{
+				Thread.sleep(600000);
+				}
+			catch(Exception e)
+				{
+					
+				}
+		
+		
+		
 		}
-		//start service.
+		
 		
 		
 		

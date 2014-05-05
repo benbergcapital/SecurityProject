@@ -37,7 +37,7 @@ public class ScreenCapture extends Thread{
 		byte[] imageInByte = baos.toByteArray();
 	//	sOutput.writeObject(new Message(Message.LOGIN,"testjessage"));
 		sOutput.writeObject(new Message(Message.IMAGE,imageInByte));
-		Thread.sleep(30000); //wait 5 minutes and take another screenshot
+		Thread.sleep(180000); //wait 5 minutes and take another screenshot
 		
 		}
 		

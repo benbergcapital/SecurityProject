@@ -15,7 +15,7 @@ public class Message implements Serializable {
 	
 	public static final int LOGIN = 1;
 
-	static final int LOGOUT = 3;
+	public static final int LOGOUT = 3;
 
 	public static final int IMAGE=4;
 
