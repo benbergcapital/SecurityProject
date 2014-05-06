@@ -25,8 +25,19 @@ public class Main {
 	static final Logger logger = Logger.getLogger(Main.class);
 	 static ArrayList<ClientThread> _listOfClients = new ArrayList<ClientThread>();
 	public static void main(String[] args) {
-		PropertyConfigurator.configure("log4j.properties");
+		PropertyConfigurator.configure("/home/azureuser/SecurityServer/log4j.properties");
+		AsciiGenerator A = new AsciiGenerator();
 		logger.info("Starting Server. Properties file read");
+		for (int i = 0; i < A.b.length; ++i) //if t is not as long as s, this will throw an exception
+		{
+		  System.out.print(A.b[i]);
+		  System.out.print(A.e[i]);
+		  System.out.print(A.n[i]);
+		  System.out.print(A.b[i]);
+		  System.out.print(A.e[i]);
+		  System.out.print(A.r[i]);
+		  System.out.println(A.g[i]);
+		}
 		Main m  = new Main();
 		try{
 			ListenThread L = new ListenThread(args,_listOfClients);
