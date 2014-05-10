@@ -252,6 +252,9 @@ class ClientThread extends Thread {
 					logger.info("Sent Logout message to "+socket.getInetAddress());
 					}
 					break;
+				case Message.MESSAGE:
+					logger.info("Received message :"+input.getMessage());
+					break;
 				case Message.LOGIN:
 					Hostname = input.getMessage();
 					logger.info("Received Login Message from "+Hostname);

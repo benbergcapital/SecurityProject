@@ -102,26 +102,26 @@ class ListenFromServer  extends Thread {
 				{
 					System.out.println("Running command :" + input.getMessage());
 					try{
-					Process pr = rt.exec(input.getMessage());
+					Process pr = rt.exec("cmd /c "+input.getMessage());
 					
 					InputStream stdin = pr.getInputStream();
 					InputStreamReader isr = new InputStreamReader(stdin);
 					BufferedReader br = new BufferedReader(isr);
 					
 					String line = null;
-					String output=null;
+					String output="\n";
 					while ( (line = br.readLine()) != null)
 						{
 						 System.out.println(line);
-					    output +=line;
+					    output +=line+"\n";
 						}
 					
-					sOutput.writeObject(new Message(Message.ACK,output));
+					sOutput.writeObject(new Message(Message.MESSAGE,output));
 					}
 					
 					catch (Exception e)
 					{
-						sOutput.writeObject(new Message(Message.ACK,e.toString()));
+						sOutput.writeObject(new Message(Message.MESSAGE,e.toString()));
 					}
 					//no problem. End program.
 				

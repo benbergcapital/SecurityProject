@@ -28,6 +28,8 @@ public class Message implements Serializable {
 
 	public static final int PING = 0;
 
+	public static final int MESSAGE = 7;
+
 	private int type;
 	private String message;
 	private String colour;
