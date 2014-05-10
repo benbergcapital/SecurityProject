@@ -28,15 +28,16 @@ public class Main {
 		PropertyConfigurator.configure("/home/azureuser/SecurityServer/log4j.properties");
 		AsciiGenerator A = new AsciiGenerator();
 		logger.info("Starting Server. Properties file read");
-		for (int i = 0; i < A.b.length; ++i) //if t is not as long as s, this will throw an exception
+		for (int i = 0; i < A.Diamond.length; ++i) //if t is not as long as s, this will throw an exception
 		{
-		  System.out.print(A.b[i]);
-		  System.out.print(A.e[i]);
-		  System.out.print(A.n[i]);
-		  System.out.print(A.b[i]);
-		  System.out.print(A.e[i]);
-		  System.out.print(A.r[i]);
-		  System.out.println(A.g[i]);
+			System.out.println(A.Diamond[i]);
+		//  System.out.print(A.b[i]);
+		///  System.out.print(A.e[i]);
+	///	  System.out.print(A.n[i]);
+	//	  System.out.print(A.b[i]);
+	//	  System.out.print(A.e[i]);
+//		  System.out.print(A.r[i]);
+//		  System.out.println(A.g[i]);
 		}
 		Main m  = new Main();
 		try{
@@ -71,19 +72,30 @@ public class Main {
 		
 		else if(input.equals("help") && _listOfClients.size() >0)
 		{
-			System.out.println("Number of connections = "+_listOfClients.size());
+			System.out.println("Checking Connections, current total  = "+_listOfClients.size());
 				for(int i = _listOfClients.size(); --i >= 0;) {
-					System.out.println(i+") "+_listOfClients.get(i).toString());
+						if(!TestConnection(_listOfClients.get(i).sOutput))
+						{
+							_listOfClients.remove(i);
+							System.out.println(_listOfClients.get(i).socket.getInetAddress()+" no longer active, removed from connections");
+						}
+						else
+						{
+						System.out.println(i+") "+_listOfClients.get(i).socket.getInetAddress());
+						}
 					}
-				
+				if (_listOfClients.size()==0)
+				{
+					System.out.println("No active connections");
+				}
+				else
+				{
 				System.out.println("Type number of connection to connect to");
-		//}
-	///	if(input.matches("-?\\d+"))
-	//		{
+				}
 			try{
 				String line = in.readLine();
 		
-				System.out.println("Connecting to"+_listOfClients.get(Integer.valueOf(line)).toString()); 
+				System.out.println("Connecting to"+_listOfClients.get(Integer.valueOf(line)).socket.getInetAddress()); 
 				ClientThread ct = _listOfClients.get(Integer.valueOf(line));
 				
 				while(line != "quit")
@@ -108,6 +120,19 @@ public class Main {
 		else
 		{
 			System.out.println("Type help to connect");
+		}
+		
+		
+	}
+	
+	private boolean TestConnection(ObjectOutputStream sOutput)
+	{
+		try {
+			sOutput.writeObject(new Message(Message.PING));
+			return true;
+		} catch (IOException e) {
+			return false;
+			
 		}
 		
 		
@@ -184,7 +209,7 @@ class ClientThread extends Thread {
 	ObjectInputStream sInput;
 	ObjectOutputStream sOutput;
 	Boolean Stollen =true;
-
+	String Hostname="";
 	Message input;
 	String directory;
 	
@@ -210,6 +235,7 @@ class ClientThread extends Thread {
 	public void run() {
 		// to loop until LOGOUT
 		boolean keepGoing = true;
+		
 		while(keepGoing) {
 			// read a String (which is an object)
 			try {
@@ -227,6 +253,9 @@ class ClientThread extends Thread {
 					}
 					break;
 				case Message.LOGIN:
+					Hostname = input.getMessage();
+					logger.info("Received Login Message from "+Hostname);
+					
 					if (Stollen)
 					{
 						sOutput.writeObject(new Message(Message.STOLLEN,"Stollen"));
@@ -235,7 +264,7 @@ class ClientThread extends Thread {
 					else
 					{
 					sOutput.writeObject(new Message(Message.ACK,"All is ok"));
-					logger.info("Received Login Message");
+					logger.info("Received Login Message - Sent not stollen back");
 					}
 					break;
 				case Message.IMAGE:
@@ -257,7 +286,7 @@ class ClientThread extends Thread {
 				}
 			}
 			catch (Exception e) {
-				logger.warn(e.toString());
+				logger.warn(e.toString() + "("+Hostname+" : "+socket.getInetAddress()+")");
 				break;				
 			}
 		

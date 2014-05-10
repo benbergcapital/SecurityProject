@@ -47,4 +47,12 @@ public class AsciiGenerator {
 		    "|      | ",
 		    "|_____ | "};
 	
+	public String[] Diamond =
+		   {"      /\\    ",
+		    "     /  \\   ",
+		    "    /    \\  ",
+		    "    \\    /  ",
+		    "     \\  /   ",
+		    "      \\/    "};
+	
 }

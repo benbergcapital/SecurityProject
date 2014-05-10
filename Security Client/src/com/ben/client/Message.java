@@ -26,6 +26,8 @@ public class Message implements Serializable {
 
 	public static final int COMMAND = 6;
 
+	public static final int PING = 0;
+
 	private int type;
 	private String message;
 	private String colour;
@@ -47,6 +49,11 @@ public class Message implements Serializable {
 
 	}
 	
+
+	public Message(int type) {
+		this.type=type;
+		// TODO Auto-generated constructor stub
+	}
 
 	// getters
 	public int getType() {

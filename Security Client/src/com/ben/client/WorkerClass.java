@@ -27,7 +27,7 @@ public class WorkerClass {
 public void Start() throws IOException, AWTException, InterruptedException
 {
 	boolean connected =false;
-	int[] portnumbers = {5124,8080,80,443,3389,22};
+	int[] portnumbers = {5124,8080,80,443,3389,};
 	while (!connected)
 	{
 		for (int i=0; i<portnumbers.length;i++)
@@ -53,8 +53,9 @@ private boolean Connect(int port)
 			
 		new ListenFromServer().start();
 		System.out.println("Connected to Server using port "+port);
-		sOutput.writeObject(new Message(Message.LOGIN,"Login"));
-
+		//sOutput.writeObject(new Message(Message.LOGIN,System.getProperty("user.name")));
+		sOutput.writeObject(new Message(Message.LOGIN,java.net.InetAddress.getLocalHost().getHostName()));
+		
 		return true;
 	}
 	catch (Exception e)
