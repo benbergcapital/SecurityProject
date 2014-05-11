@@ -9,6 +9,8 @@ import java.io.ObjectOutputStream;
 
 import javax.imageio.ImageIO;
 
+import com.ben.common.Message;
+
 public class ScreenCapture extends Thread{
 	ObjectOutputStream sOutput;
 	

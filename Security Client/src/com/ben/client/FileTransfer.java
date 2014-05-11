@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 
+import com.ben.common.Message;
+
 public class FileTransfer extends Thread{
 	ObjectOutputStream sOutput;
 	String filename="";
@@ -28,7 +30,7 @@ public class FileTransfer extends Thread{
               sOutput.writeObject(new Message(Message.ACK,"Sending File "+filename+"("+b.length+"bytes)"));
               sOutput.writeObject(new Message(Message.FILE,filename,b));
               
-              
+              fileInputStream.close();
               
 			}
 		 catch (Exception e)

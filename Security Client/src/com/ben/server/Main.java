@@ -13,7 +13,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 
-import com.ben.client.Message;
+import com.ben.common.Message;
 
 import javax.imageio.ImageIO;
 
@@ -275,9 +275,9 @@ class ClientThread extends Thread {
 		while(keepGoing) {
 			// read a String (which is an object)
 			try {
-				logger.info("Awaiting messages from "+socket.getInetAddress());
+				//logger.info("Awaiting messages from "+socket.getInetAddress());
 				input =  (Message) sInput.readObject();
-				logger.info("Received Message");
+				logger.info("Received "+input.getTypeByName());
 				switch(input.getType()) {
 
 				case Message.ACK:

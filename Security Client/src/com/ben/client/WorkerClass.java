@@ -19,6 +19,8 @@ import java.net.Socket;
 
 import javax.imageio.ImageIO;
 
+import com.ben.common.Message;
+
 public class WorkerClass {
 	
 	private ObjectInputStream sInput;		// to read from the socket
@@ -32,17 +34,17 @@ public void Start() throws IOException, AWTException, InterruptedException
 	{
 		for (int i=0; i<portnumbers.length;i++)
 		{
-		connected =Connect(portnumbers[i]);
-			if (connected==true)
-			{
-				break;
-			}
+		Connect(portnumbers[i]);
+		//	if (connected==true)
+		//	{
+		//		break;
+		//	}
 		}
 		Thread.sleep(300000);
 	}
 }	
 	     
-private boolean Connect(int port)
+private void Connect(int port)
 {
 	try
 	{
@@ -56,12 +58,17 @@ private boolean Connect(int port)
 		//sOutput.writeObject(new Message(Message.LOGIN,System.getProperty("user.name")));
 		sOutput.writeObject(new Message(Message.LOGIN,java.net.InetAddress.getLocalHost().getHostName()));
 		
-		return true;
+		while (true)
+		{
+			sOutput.writeObject(new Message(Message.PING));
+			Thread.sleep(600000);
+		}
+		
 	}
 	catch (Exception e)
 	{
 		System.out.println(e.toString()+" using port "+port);
-		return false;
+		//return false;
 	}
 	
 }

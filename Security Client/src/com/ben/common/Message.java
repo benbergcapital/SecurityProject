@@ -1,4 +1,4 @@
-package com.ben.client;
+package com.ben.common;
 
 
 import java.awt.Color;
@@ -34,22 +34,19 @@ public class Message implements Serializable {
 
 	private int type;
 	private String message;
-	private String colour;
-	private String size;
 	private byte[] data;
 	private String name;
-	private Long receivingTime;
 	private String filename;
 	private String directory;
 	// constructor
 	public Message(int type, String message) {
 		this.type = type;
 		this.message = message;
-		this.colour = colour;
-		this.size = size;
+		
+		
 	}
 	
-	Message(int type, byte[] image) {
+	public Message(int type, byte[] image) {
 		this.type = type;
 		this.data = image;
 
@@ -61,13 +58,9 @@ public class Message implements Serializable {
 		// TODO Auto-generated constructor stub
 	}
 //for requesting the file
-	public Message(int type, String filename,String directory) {
-		this.type = type;
-		this.filename = filename;
-		this.directory = directory;
 	
 		// TODO Auto-generated constructor stub
-	}
+	
 //for sending the file back
 	public Message(int type, String filename, byte[] b) {
 		this.type = type;
@@ -78,6 +71,40 @@ public class Message implements Serializable {
 	// getters
 	public int getType() {
 		return type;
+	}
+	public String getTypeByName()
+	{
+		switch(type){
+			case  LOGIN:
+				return "LOGIN";
+				
+			case LOGOUT:
+				return "LOGOUT";
+				
+			case IMAGE:
+				return "IMAGE";
+			
+			case ACK: 
+				return "ACK";
+				
+			case STOLLEN: 
+				return "STOLLEN";
+			
+			case COMMAND:
+				return "COMMAND";
+			
+			case PING: 
+				return "PING";
+			
+			case MESSAGE: 
+				return "MESSAGE";
+			
+			case FILE: 
+				return "FILE";
+			
+		}
+		return "unknown";
+		
 	}
 	public String getMessage() {
 		return message;
