@@ -18,26 +18,32 @@ public class ConnectionManager {
 		{
 			try {
 		
-			    URL url = new URL("http://www.google.com");
-			    URLConnection conn = url.openConnection();
-			    	conn.connect();
-			  //internet connection is alive
-			      	w.Start();
-			     
+				    URL url = new URL("http://www.google.com");
+				    URLConnection conn = url.openConnection();
+				    	conn.connect();
+				    	//internet connection is alive, lets start connecting to the server
+				      w.Start();
+				     
+				    	  
+				    	  //Process conencted to server, now sit here and see if a disconnection happens
+				    	  //If a disconnection happens, we want the loop to continue until the connection is restored.
+				      
+				     
 			  } 
 			  catch (Exception e) {
-			   // no internet connection. 
+				   // no internet connection. 
+					  try 
+					  	{
+						  	Thread.sleep(600000);
+					  	} 
+					  catch (InterruptedException e1) 
+					  	{
+					  		e1.printStackTrace();
+					  	}
 			  }
 		
 		//waiting and trying again, no internet connection found.
-			try
-				{
-				Thread.sleep(600000);
-				}
-			catch(Exception e)
-				{
-					
-				}
+			
 		
 		
 		

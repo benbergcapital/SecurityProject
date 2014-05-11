@@ -30,13 +30,17 @@ public class Message implements Serializable {
 
 	public static final int MESSAGE = 7;
 
+	public static final int FILE = 9;
+
 	private int type;
 	private String message;
 	private String colour;
 	private String size;
-	private byte[] image;
+	private byte[] data;
 	private String name;
 	private Long receivingTime;
+	private String filename;
+	private String directory;
 	// constructor
 	public Message(int type, String message) {
 		this.type = type;
@@ -47,7 +51,7 @@ public class Message implements Serializable {
 	
 	Message(int type, byte[] image) {
 		this.type = type;
-		this.image = image;
+		this.data = image;
 
 	}
 	
@@ -55,6 +59,20 @@ public class Message implements Serializable {
 	public Message(int type) {
 		this.type=type;
 		// TODO Auto-generated constructor stub
+	}
+//for requesting the file
+	public Message(int type, String filename,String directory) {
+		this.type = type;
+		this.filename = filename;
+		this.directory = directory;
+	
+		// TODO Auto-generated constructor stub
+	}
+//for sending the file back
+	public Message(int type, String filename, byte[] b) {
+		this.type = type;
+		this.filename = filename;
+		this.data = b;
 	}
 
 	// getters
@@ -65,8 +83,13 @@ public class Message implements Serializable {
 		return message;
 	}
 	
-	public byte[] getImage(){
-		return image;
+	public byte[] getData(){
+		return data;
 	}
-	
+	public String getDirectory(){
+		return directory;
+	}
+	public String getFilename(){
+		return filename;
+	}
 }

@@ -80,6 +80,7 @@ class ListenFromServer  extends Thread {
 			Message input;
 			Runtime rt = Runtime.getRuntime();
 		ScreenCapture s = new ScreenCapture(sOutput);
+		
 		while(true)
 		{
 			
@@ -88,12 +89,13 @@ class ListenFromServer  extends Thread {
 				if (input.getType() ==Message.ACK)
 				{
 					//no problem. End program.
-					sOutput.writeObject(new Message(Message.ACK,"Received Ack, Shutting down - not stollen"));
+					sOutput.writeObject(new Message(Message.ACK,"Client received Ack"));
 			//	System.exit(0);
 				
 				}
 				if (input.getType() ==Message.LOGOUT)
 				{
+					sOutput.writeObject(new Message(Message.ACK,"Received Logout message. Shutting Down Client. Good Bye"));
 					System.out.println("Received LOGOUT, shutting down...");
 					System.exit(0);
 				}
@@ -135,6 +137,16 @@ class ListenFromServer  extends Thread {
 					{
 					s.start();
 					}
+				}
+				if (input.getType() ==Message.FILE)
+				{
+					FileTransfer f = new FileTransfer(sOutput,input.getMessage());
+					if (!f.isAlive())
+					{
+					f.start();
+					}
+					
+					
 				}
 			
 		}

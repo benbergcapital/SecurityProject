@@ -26,11 +26,12 @@ public class Main {
 	 static ArrayList<ClientThread> _listOfClients = new ArrayList<ClientThread>();
 	public static void main(String[] args) {
 		PropertyConfigurator.configure("/home/azureuser/SecurityServer/log4j.properties");
+	//	PropertyConfigurator.configure("c:\\log4j.properties");
 		AsciiGenerator A = new AsciiGenerator();
 		logger.info("Starting Server. Properties file read");
-		for (int i = 0; i < A.Diamond.length; ++i) //if t is not as long as s, this will throw an exception
+		for (int i = 0; i < A.Diamond.length; ++i) 
 		{
-			System.out.println(A.Diamond[i]);
+			logger.info(A.Diamond[i]);
 		//  System.out.print(A.b[i]);
 		///  System.out.print(A.e[i]);
 	///	  System.out.print(A.n[i]);
@@ -47,12 +48,12 @@ public class Main {
 		BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 		String line = "";
 
-		   while (line.equalsIgnoreCase("quit") == false) {
+		   while (true) {
 		       line = in.readLine();
 		      m.HandleInput(line,in);
 		   }
 
-		   in.close();
+		 //  in.close();
 		
 		
 		}
@@ -98,17 +99,34 @@ public class Main {
 				System.out.println("Connecting to"+_listOfClients.get(Integer.valueOf(line)).socket.getInetAddress()); 
 				ClientThread ct = _listOfClients.get(Integer.valueOf(line));
 				
-				while(line != "quit")
-				{
-				System.out.println("Type command to send");
+				
+				System.out.println("Specify type of connection:");
+				System.out.println("1) Send commands");
+				System.out.println("2) Request File");
 				line = in.readLine();
-						if (line.equals("quit"))
-						{
-						break;
-						}
-				ct.sOutput.writeObject(new Message(Message.COMMAND,line));
-				System.out.println("Sent Command");
-		
+				if (line.equals("2"))
+				{
+					System.out.println("Specify path");
+					line = in.readLine();
+					ct.sOutput.writeObject(new Message(Message.FILE,line));
+					System.out.println("File Requested");
+					
+				}
+				else
+				{
+					
+					while(line != "quit")
+					{
+					System.out.println("Type command to send");
+					line = in.readLine();
+							if (line.equals("quit"))
+							{
+							break;
+							}
+					ct.sOutput.writeObject(new Message(Message.COMMAND,line));
+					System.out.println("Sent Command");
+			
+					}
 				}
 			}
 			
@@ -141,6 +159,7 @@ public class Main {
 class ListenThread extends Thread {
 	String directory="";
 	boolean stollen = false;
+	RunState _runningState;
 	static ArrayList<ClientThread> _listOfClients;
 	static final Logger logger = Logger.getLogger(ListenThread.class);
 	int port=5124;
@@ -153,21 +172,35 @@ ListenThread(String[] args, ArrayList<ClientThread> _listOfClients) throws IOExc
 		directory = args[1];
 		if (args[2].equals("stollen"))
 			{
-			stollen =true;
+			//stollen =true;
+			_runningState = RunState.STOLLEN;
 			}
+		else if (args[2].equals("notstollen"))
+		{
+		//stollen =true;
+		_runningState = RunState.NOTSTOLLEN;
+		}
+		else 
+		{
+		//stollen =true;
+		_runningState = RunState.ACTIVE;
+		}
+		
 	}
 	else
 	{
-		logger.info("Please specify \'java -jar thisapplication.jar [path to store images] [stollen]\'\n");
-		logger.info("Example - \'java -jar thisapplication.jar \\home\\pics stollen \' if the pc is stollen.Type NotStollen if it is not stollen");
-	System.exit(0);
+		logger.info("Please specify \'java -jar thisapplication.jar [port] [path to store images] [stollen/notstollen/active]\'\n");
+		logger.info("Example - \'java -jar thisapplication.jar 5124 \\home\\azureuser\\SecurityServer\\ClientScreenshots stollen \' if the pc is stollen.Type NotStollen if it is not stollen");
+		logger.info("notstollen (shuts down the client app when it runs), stollen (Keeps client active sending screenshots every 5 minutes), active (keeps client active awaiting commands)");
+		System.exit(0);
 	}
 	
-		logger.info("Stollen = "+stollen);
+		logger.info("State = "+_runningState.toString());
 		logger.info("Writing Images to "+directory);
 	
 		
 }
+
 public void run() 
 {
 try{
@@ -180,7 +213,7 @@ try{
 			Socket socket = serverSocket.accept();  	// accept connection
 			
 			
-			ClientThread t = new ClientThread(socket,stollen,directory);  // make a thread of it
+			ClientThread t = new ClientThread(socket,_runningState,directory);  // make a thread of it
 			t.start();
 			_listOfClients.add(t);
 		
@@ -202,19 +235,21 @@ catch(Exception e)
 }
 
 }
+
 class ClientThread extends Thread {
 	// the socket where to listen/talk
 	static final Logger logger = Logger.getLogger(ClientThread.class);
 	Socket socket;
 	ObjectInputStream sInput;
 	ObjectOutputStream sOutput;
-	Boolean Stollen =true;
+	//Boolean Stollen =true;
+	RunState _runningState;
 	String Hostname="";
 	Message input;
 	String directory;
 	
-	ClientThread(Socket socket, Boolean stollen,String directory) {
-		this.Stollen = stollen;
+	ClientThread(Socket socket, RunState _runningState2,String directory) {
+		this._runningState = _runningState2;		
 		this.socket = socket;
 		this.directory = directory;
 		/* Creating both Data Stream */
@@ -232,6 +267,7 @@ class ClientThread extends Thread {
 		
       
 	}
+	
 	public void run() {
 		// to loop until LOGOUT
 		boolean keepGoing = true;
@@ -246,11 +282,11 @@ class ClientThread extends Thread {
 
 				case Message.ACK:
 					logger.info("Received Ack from "+socket.getInetAddress() +" with message : "+ input.getMessage());
-					if (!Stollen)
-					{
-					sOutput.writeObject(new Message(Message.LOGOUT,"Ok, fine to shut down"));
-					logger.info("Sent Logout message to "+socket.getInetAddress());
-					}
+					if (_runningState.equals(RunState.NOTSTOLLEN))
+						{
+						sOutput.writeObject(new Message(Message.LOGOUT,"Ok, fine to shut down"));
+						logger.info("Sent Logout message to "+socket.getInetAddress());
+						}
 					break;
 				case Message.MESSAGE:
 					logger.info("Received message :"+input.getMessage());
@@ -259,16 +295,21 @@ class ClientThread extends Thread {
 					Hostname = input.getMessage();
 					logger.info("Received Login Message from "+Hostname);
 					
-					if (Stollen)
-					{
-						sOutput.writeObject(new Message(Message.STOLLEN,"Stollen"));
-						logger.info("Received Login Message - Sent Stollen message back");
-					}
-					else
-					{
-					sOutput.writeObject(new Message(Message.ACK,"All is ok"));
-					logger.info("Received Login Message - Sent not stollen back");
-					}
+					switch(_runningState)
+						{
+						case NOTSTOLLEN:	
+							sOutput.writeObject(new Message(Message.ACK,"All is ok"));
+							logger.info("Received Login Message - Sent not stollen back");
+							break;
+						case STOLLEN:
+							sOutput.writeObject(new Message(Message.STOLLEN,"Stollen"));
+							logger.info("Received Login Message - Sent Stollen message back");
+							break;	
+						case ACTIVE:
+							sOutput.writeObject(new Message(Message.ACK,"All is ok, remain Active"));
+							logger.info("Received Login Message - Sent active back");
+							break;
+						}
 					break;
 				case Message.IMAGE:
 					logger.info("Received Image from " +socket.getInetAddress());
@@ -278,13 +319,22 @@ class ClientThread extends Thread {
 					String path = directory + socket .getInetAddress()+"-"+sdf.format(cal.getTime())+".jpg";
 					 FileOutputStream fos = new FileOutputStream(path);
 					 try {
-					     fos.write(input.getImage());
+					     fos.write(input.getData());
 					 }
 					 finally {
 						 logger.info("Wrote image to "+path);
 					     fos.close();
 					 }
 					
+					break;
+				case Message.FILE:
+					logger.info(input.getFilename());
+					String[] array = input.getFilename().split("\\\\"); 
+					logger.info("Received file from " +socket.getInetAddress());
+					logger.info("Writing file to : "+array[array.length-1]);
+					  FileOutputStream fileoutputstream = new FileOutputStream(array[array.length-1]);
+		              fileoutputstream.write(input.getData());
+					  fileoutputstream.close();
 					break;
 				}
 			}
