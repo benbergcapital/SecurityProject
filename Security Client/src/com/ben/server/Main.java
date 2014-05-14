@@ -67,30 +67,34 @@ public class Main {
 		if (_listOfClients.size() ==0)
 		{
 			System.out.println("No Clients connected. Nothing can be done.");
-			System.out.println("Starting Server. Properties file read");
+			
 			return;
 		}
 		
 		else if(input.equals("help") && _listOfClients.size() >0)
 		{
 			System.out.println("Checking Connections, current total  = "+_listOfClients.size());
-				for(int i = _listOfClients.size(); --i >= 0;) {
+				for(int i = 0; i<_listOfClients.size(); i++) {
 						if(!TestConnection(_listOfClients.get(i).sOutput))
 						{
-							_listOfClients.remove(i);
+							
 							System.out.println(_listOfClients.get(i).socket.getInetAddress()+" no longer active, removed from connections");
+							_listOfClients.remove(i);
 						}
-						else
-						{
-						System.out.println(i+") "+_listOfClients.get(i).socket.getInetAddress());
-						}
+						
 					}
+								
 				if (_listOfClients.size()==0)
 				{
 					System.out.println("No active connections");
+					return;
 				}
 				else
 				{
+					for(int i = 0; i<_listOfClients.size(); i++) {
+					System.out.println(i+") "+_listOfClients.get(i).socket.getInetAddress());
+					}
+					
 				System.out.println("Type number of connection to connect to");
 				}
 			try{
@@ -103,6 +107,7 @@ public class Main {
 				System.out.println("Specify type of connection:");
 				System.out.println("1) Send commands");
 				System.out.println("2) Request File");
+			//	System.out.println("3) Change Server Status");
 				line = in.readLine();
 				if (line.equals("2"))
 				{
@@ -112,6 +117,23 @@ public class Main {
 					System.out.println("File Requested");
 					
 				}
+				/*		if (line.equals("3"))
+				{
+					System.out.println("Specify new run state");
+					System.out.println("1) ACTIVE - Client remains running awaiting commands");
+					System.out.println("2) STOLLEN - Client remains running awaiting commands and sending screenshots every 5 minutes");
+					System.out.println("3) NOTSTOLLEN - Client shutsdown and does nothing");
+					line = in.readLine();
+					switch (line){
+					case "1":
+						
+					case "2":
+					default:
+						break
+				}
+					System.out.println("File Requested");
+					
+				}*/
 				else
 				{
 					
@@ -207,22 +229,32 @@ try{
 		ServerSocket serverSocket = new ServerSocket(port);
 
 		// infinite loop to wait for connections
-		logger.info("Server waiting for Clients on port " + 5124 + ".");
+		
 		while(true)
 		{
+			logger.info("Server waiting for Clients on port " + 5124 + ".");
 			Socket socket = serverSocket.accept();  	// accept connection
-			
-			
-			ClientThread t = new ClientThread(socket,_runningState,directory);  // make a thread of it
-			t.start();
-			_listOfClients.add(t);
-		
-		    logger.info(" Connection Received from  " + socket .getInetAddress() + " on port "
+			logger.info(" Connection Received from  " + socket .getInetAddress() + " on port "
 		             + socket .getPort() + " to port " + socket .getLocalPort() + " of "
 		             + socket .getLocalAddress());
-				
-		//	sOutput.writeObject("Test response");
+			
+			ClientThread t = new ClientThread();  // make a thread of it
+			boolean state = t.ClientThread(socket,_runningState,directory);
+			
+			if (state)
+			{
+				logger.info("Stream created, starting listen thread");
+				t.start();
+			_listOfClients.add(t);
 		
+		    
+				
+		
+			}
+			else
+			{
+				logger.info("IO stream errored, dropping connection");
+			}
 	}
 }
 catch(Exception e)
@@ -248,7 +280,12 @@ class ClientThread extends Thread {
 	Message input;
 	String directory;
 	
-	ClientThread(Socket socket, RunState _runningState2,String directory) {
+	ClientThread()
+	{
+		return;
+	}
+	
+	public boolean ClientThread(Socket socket, RunState _runningState2,String directory) {
 		this._runningState = _runningState2;		
 		this.socket = socket;
 		this.directory = directory;
@@ -259,10 +296,11 @@ class ClientThread extends Thread {
 			// create output first
 			sOutput = new ObjectOutputStream(socket.getOutputStream());
 			sInput  = new ObjectInputStream(socket.getInputStream());
+			return true;
 		}
 		catch (IOException e) {
 			logger.warn(e.toString());
-			return;
+			return false;
 		}
 		
       
