@@ -35,12 +35,9 @@ public void Start() throws IOException, AWTException, InterruptedException
 		for (int i=0; i<portnumbers.length;i++)
 		{
 		Connect(portnumbers[i]);
-		//	if (connected==true)
-		//	{
-		//		break;
-		//	}
+		
 		}
-		Thread.sleep(300000);
+		Thread.sleep(1800000);
 	}
 }	
 	     

@@ -14,9 +14,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import com.ben.common.Message;
-
-import javax.imageio.ImageIO;
-
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 
@@ -25,8 +22,8 @@ public class Main {
 	static final Logger logger = Logger.getLogger(Main.class);
 	 static ArrayList<ClientThread> _listOfClients = new ArrayList<ClientThread>();
 	public static void main(String[] args) {
-		PropertyConfigurator.configure("/home/azureuser/SecurityServer/log4j.properties");
-	//	PropertyConfigurator.configure("c:\\log4j.properties");
+	//	PropertyConfigurator.configure("/home/azureuser/SecurityServer/log4j.properties");
+		PropertyConfigurator.configure("c:\\log4j.properties");
 		AsciiGenerator A = new AsciiGenerator();
 		logger.info("Starting Server. Properties file read");
 		for (int i = 0; i < A.Diamond.length; ++i) 
@@ -212,8 +209,8 @@ ListenThread(String[] args, ArrayList<ClientThread> _listOfClients) throws IOExc
 	else
 	{
 		logger.info("Please specify \'java -jar thisapplication.jar [port] [path to store images] [stollen/notstollen/active]\'\n");
-		logger.info("Example - \'java -jar thisapplication.jar 5124 \\home\\azureuser\\SecurityServer\\ClientScreenshots stollen \' if the pc is stollen.Type NotStollen if it is not stollen");
-		logger.info("notstollen (shuts down the client app when it runs), stollen (Keeps client active sending screenshots every 5 minutes), active (keeps client active awaiting commands)");
+		logger.info("Example - \'java -jar thisapplication.jar 5123 \\home\\azureuser\\SecurityServer\\ClientScreenshots stollen \' if the pc is stollen. Type NotStollen if it is not stollen \n");
+		logger.info("notstollen (shuts down the client app when it runs)\n stollen (Keeps client active sending screenshots every 5 minutes)\n active (keeps client active awaiting commands)");
 		System.exit(0);
 	}
 	
@@ -232,7 +229,7 @@ try{
 		
 		while(true)
 		{
-			logger.info("Server waiting for Clients on port " + 5124 + ".");
+			logger.info("Server waiting for Clients on port " + port);
 			Socket socket = serverSocket.accept();  	// accept connection
 			logger.info(" Connection Received from  " + socket .getInetAddress() + " on port "
 		             + socket .getPort() + " to port " + socket .getLocalPort() + " of "
@@ -351,7 +348,7 @@ class ClientThread extends Thread {
 					break;
 				case Message.IMAGE:
 					logger.info("Received Image from " +socket.getInetAddress());
-					// ImageIO.write(input., "JPG", new File("c:\\test\\test.jpg"));
+				
 					SimpleDateFormat sdf = new SimpleDateFormat("YYYYMMDD HHmmss");
 					Calendar cal = Calendar.getInstance();
 					String path = directory + socket .getInetAddress()+"-"+sdf.format(cal.getTime())+".jpg";
