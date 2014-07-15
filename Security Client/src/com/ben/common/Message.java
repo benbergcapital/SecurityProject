@@ -31,6 +31,8 @@ public class Message implements Serializable {
 	public static final int MESSAGE = 7;
 
 	public static final int FILE = 9;
+	
+	public static final int WEBCAM = 10;
 
 	private int type;
 	private String message;

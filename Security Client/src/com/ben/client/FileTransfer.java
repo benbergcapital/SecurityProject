@@ -28,6 +28,8 @@ public class FileTransfer extends Thread{
 			  FileInputStream fileInputStream = new FileInputStream(file);
               fileInputStream.read(b);
               sOutput.writeObject(new Message(Message.ACK,"Sending File "+filename+"("+b.length+"bytes)"));
+              filename.replace("/",".");
+              filename.replace("\\",".");
               sOutput.writeObject(new Message(Message.FILE,filename,b));
               
               fileInputStream.close();
